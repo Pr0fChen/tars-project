@@ -312,7 +312,7 @@ python3 tars_local_client.py
 
 ```
 
-Pour Windows :
+## Pour Windows :
 
 Avec **WSL sous Windows 10**, tu es dans un cas un peu particulier : **WSL1 n’expose pas du tout les périphériques audio**, et WSL2 en expose à peine, mais il faut installer un **serveur PulseAudio** sous Windows pour que ta session Ubuntu voie quelque chose. Voici les deux voies possibles :
 
