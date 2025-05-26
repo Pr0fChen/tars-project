@@ -106,4 +106,4 @@ if __name__ == '__main__':
 EOF
 
 # 6) Création de l'image tars-server
- docker build -t tars-server .
+ docker build -t tars-server /root/
