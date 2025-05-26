@@ -1,0 +1,58 @@
+#!/bin/bash
+sudo -i
+
+# 1) Mise à jour du système
+apt-get update && apt-get upgrade -y
+
+# 2) Création d'un script pour l'installation de Docker et Docker-Compose
+cat << 'EOF' > /root/install_docker.sh
+#!/bin/bash
+
+apt-get install apt-transport-https ca-certificates curl gnupg2 software-properties-common sudo
+curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg | sudo apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs) stable"
+apt-get update
+apt-get install docker-ce
+curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+
+curl -fsSL https://get.docker.com/ -o get-docker.sh
+sh get-docker.sh
+EOF
+
+ # 3) Rendre exécutable le script et l'exécuter                                               
+chmod u+x /root/install_docker.sh
+/root/install_docker.sh
+
+# 4) Création du Dockerfile
+cat << 'EOF' > /root/Dockerfile
+# 1. Image de base légère avec Python 3
+FROM python:3.12-slim
+
+# 2. Crée et positionne-toi dans /app
+WORKDIR /app
+
+# 3. Copie des dépendances et installation
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 4. Copie de ton code
+COPY tars_brain_server.py ./
+
+# 5. Expose le port Flask
+EXPOSE 5000
+
+# 6. Commande de démarrage
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "tars_brain_server:app"]
+EOF
+
+# 5) Création du fichier requirements.txt
+cat << 'EOF' > /root/requirements.txt
+flask
+openai>=1.0.0
+gunicorn
+EOF
+
+# 6) Création de l'image tars-server
+ docker build -t tars-server .
